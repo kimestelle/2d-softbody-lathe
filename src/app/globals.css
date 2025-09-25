@@ -5,13 +5,6 @@
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -23,4 +16,118 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.bg-grid {
+  background-image: radial-gradient(#9e9e9e79 1px, transparent 1px);
+  background-size: 20% 10%;
+  background-position: 13% 19.5%;
+}
+
+.bg-rainbow-grad {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+}
+
+.modal {
+  border-radius: 8%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(41, 92, 180, 0.1)) border-box;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.custom-range {
+  width: 100%;
+  height: 0.3svh;
+  position: relative;
+  background: transparent;
+  outline: none;
+  -webkit-transition: .2s;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: opacity .2s;
+}
+
+.custom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0.2svh; 
+  height: 1.8svh;
+  background: #4cafef;
+  cursor: pointer;
+  border: none;
+}
+
+.custom-range::-moz-range-thumb {
+  width: 0.2svh;
+  height: 1.8svh;
+  background: #4cafef;
+  cursor: pointer;
+  border: none;
+}
+
+.custom-range::-moz-range-track {
+  height: 0.3svh;
+  position: relative;
+  background: transparent;
+}
+
+.size-range::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  transform: translateY(-25%) rotate(180deg);
+  left: 0;
+  width: 100%;
+  height: 0.6svh;
+  border-radius: 0.3svh;
+  background: linear-gradient(to left, transparent, #d3d3d3);
+  clip-path: polygon(0 0, 100% 45%, 100% 55%, 0 100%);
+  z-index: -1;
+}
+
+.blur-range::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-30%);
+  width: 100%;
+  height: 0.5svh;
+  background: linear-gradient(to right, #d3d3d3, transparent 80%),
+  radial-gradient(#d3d3d3, transparent 70%);
+  border-radius: 0.25svh;
+
+  z-index: -1;
+}
+
+.custom-color {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  border: none;
+  border-radius: 1svh;
+  cursor: pointer;
+
+  height: 3svh;
+  width: 5svh;
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+.custom-color::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 1svh;
+}
+.custom-color::-webkit-color-swatch {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 1svh;
+}
+
+.custom-color::-moz-color-swatch {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 1svh;
 }
