@@ -66,7 +66,7 @@ export default function BlobWithEditor() {
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col overflow-hidden justify-center items-center bg-black py-[15svh] px-[15svw]">
+    <div className="w-screen h-screen flex flex-col overflow-hidden justify-center items-center bg-grid-dark py-[15svh] px-[15svw]">
       <button onClick={handleWireframeToggle} 
       className="absolute top-[5svh] h-[7svh] aspect-square flex modal p-[0.75svh] rounded-full z-10">
         {u_wireframeMode === 0 ? (

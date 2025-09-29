@@ -26,7 +26,7 @@ export default class Blob2D {
   constructor(canvas: HTMLCanvasElement, pathData: string) {
     if (!canvas) throw new Error("Canvas element is required");
     this.canvas = canvas;
-    const gl = canvas.getContext("webgl", { antialias: true })!;
+    const gl = canvas.getContext("webgl");
     if (!gl) throw new Error("WebGL not supported");
     this.gl = gl;
 
@@ -311,10 +311,10 @@ export default class Blob2D {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
     //light position
-    gl.uniform3f(this.u_lightPos, 2000.0, 300.0, 300.0);
+    gl.uniform3f(this.u_lightPos, 1.2, 1.0, 1.0);
 
     // view position
-    gl.uniform3f(this.u_viewPos, 0.0, 0.0, 400.0);
+    gl.uniform3f(this.u_viewPos, 0.0, 0.0, 20.0);
 
     //blending
     gl.enable(gl.BLEND);

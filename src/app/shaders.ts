@@ -44,24 +44,25 @@ void main() {
     // vectors
     vec3 N = normalize(v_nor);
     vec3 L = normalize(u_lightPos - v_pos);
-    vec3 V = normalize(u_viewPos - v_pos);
-    vec3 R = reflect(-L, N);
+    vec3 V = normalize(v_pos - u_viewPos);
+    vec3 diagLight = -normalize(vec3(1.2, 1.0, 1.0));
+    vec3 R = reflect(-diagLight, N);
 
     // albedo
     vec3 albedo = texture2D(u_texture, v_uv).rgb;
 
     float spec = pow(max(dot(R, V), 0.0), 32.0);
-    vec3 specular = vec3(1.0) * spec * 0.4;
+    vec3 specular = vec3(1.0) * spec * 0.6;
 
     // rim
-    float rimAngle = (1.0 - dot(N, V)) * 0.5;
-    rimAngle = smoothstep(1.0, 0.2, rimAngle); 
+    float rimAngle = (1.0 - dot(N, V));
+    rimAngle = pow(clamp(rimAngle, 0.3, 1.0), 3.0);
 
-    vec3 rimColor = (vec3(0.7, 0.7, 0.7) + N) * rimAngle;
+    vec3 rimColor = (vec3(0.6, 0.6, 0.6) + N) * rimAngle;
 
-    vec3 finalColor = albedo + specular + rimColor + u_wireframeMode;
+    vec3 finalColor = albedo + specular + rimColor + vec3(u_wireframeMode);
 
-    float alpha = clamp(rimAngle * 0.4 + spec * 0.18, 0.05, 0.95);
+    float alpha = clamp(rimAngle + spec, 0.1, 0.95);
 
     gl_FragColor = vec4(finalColor, max(alpha, u_wireframeMode));
 }

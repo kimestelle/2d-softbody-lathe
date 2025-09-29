@@ -24,6 +24,32 @@ body {
   background-position: 13% 19.5%;
 }
 
+.bg-grid-dark {
+  background-image: radial-gradient(rgb(50, 50, 50) 1px, #151515 1px);
+  background-size: 10px 10px;
+  background-position: center;
+  background-repeat: repeat;
+}
+
+.bg-grid-dark::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(transparent, rgba(0, 0, 0, 0.8)), 
+    radial-gradient(
+      ellipse 50% 8% at 50% calc(50% + min(30svh, 30svw)),
+      rgba(255, 255, 255, 0.5) 0%,
+      transparent 80%
+    );
+  background-position: center, center, center;
+  background-size: cover, cover, cover;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  pointer-events: none;
+}
+
 .bg-rainbow-grad {
   background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
 }

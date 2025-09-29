@@ -33,7 +33,7 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "red";
+    ctx.fillStyle = 'transparent';
     ctx.fillRect(0, 0, width, height);
   }, [width, height]);
 
@@ -68,7 +68,7 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "white";
+    ctx.fillStyle = 'transparent';
     ctx.fillRect(0, 0, width, height);
 
     if (onTextureChange) {
@@ -94,7 +94,7 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
         ref={canvasRef}
         width={width}
         height={height}
-        className='h-[75%] w-[75%] aspect-square rounded-full cursor-crosshair'
+        className='h-[75%] w-[75%] aspect-square rounded-full cursor-crosshair border border-white/25'
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
