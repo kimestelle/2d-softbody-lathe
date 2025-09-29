@@ -18,6 +18,22 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.bg-checkerboard {
+  background-color: white;
+  background: 
+      repeating-conic-gradient(#ffffff87 0 25%, #0000 0 50%);
+  background-size: 50% 50%;
+  border-radius: 0.5svh;
+}
+
+.bg-checkerboard-active {
+  background: 
+      repeating-conic-gradient(#ffffff 0 25%, #0000 0 50%);
+  background-size: 50% 50%;
+  border: 1px solid white;
+  border-radius: 0.5svh;
+}
+
 .bg-grid {
   background-image: radial-gradient(#9f9f9f79 1px, rgba(66, 66, 66, 0.5) 1.2px, transparent 1.2px);
   background-size: 20% 10%;
@@ -138,7 +154,7 @@ body {
   border-radius: 1svh;
   cursor: pointer;
 
-  height: 3svh;
+  height: 3.5svh;
   width: 5svh;
   margin: 0;
   padding: 0;

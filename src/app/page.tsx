@@ -114,10 +114,10 @@ export default function BlobWithEditor() {
         </button>
       </div>
 
-      <div className={`absolute h-[30svh] w-[30svh] bottom-[15svh] left-[10svw] flex modal ${editModal === 'bezier' ? 'block' : 'hidden'}`}>
+      <div className={`absolute z-[15] h-[30svh] w-[30svh] bottom-[15svh] left-[10svw] flex modal ${editModal === 'bezier' ? 'block' : 'hidden'}`}>
         <BezierEditor onPathChange={setPathData} />
       </div>
-      <div className={`absolute h-[30svh] w-[30svh] bottom-[15svh] left-[10svw] flex modal ${editModal === 'texture' ? 'block' : 'hidden'}`}>
+      <div className={`absolute z-[15] h-[30svh] w-[30svh] bottom-[15svh] left-[10svw] flex modal ${editModal === 'texture' ? 'block' : 'hidden'}`}>
         <TextureEditor onTextureChange={handleTextureChange} />
       </div>
     </div>

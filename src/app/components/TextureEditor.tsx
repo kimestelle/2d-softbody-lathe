@@ -9,15 +9,16 @@ type TextureEditorProps = {
 };
 
 const TextureEditor: React.FC<TextureEditorProps> = ({
-  width = 256,
-  height = 256,
+  width = 512,
+  height = 512,
   onTextureChange,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState("#9ac1ff");
-  const [brushSize, setBrushSize] = useState(16);
+  const [brushSize, setBrushSize] = useState(60);
   const [blur, setBlur] = useState(0);
+  const [isErasing, setIsErasing] = useState(false);
 
   const getMousePos = (e: MouseEvent | React.MouseEvent) => {
     const canvas = canvasRef.current!;
@@ -55,8 +56,14 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
     const ctx = canvas.getContext("2d")!;
     const { x, y } = getMousePos(e);
 
-    ctx.fillStyle = color;
-    if (blur == 0) ctx.fillStyle = color;
+    if (isErasing) {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = 'rgba(0,0,0,1)'; // color doesn't matter in erase mode
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = color;
+    }
+
     ctx.shadowBlur = blur;
     ctx.shadowColor = color;
     ctx.beginPath();
@@ -64,16 +71,8 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
     ctx.fill();
   };
 
-  const clearCanvas = () => { 
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext("2d")!;
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = 'transparent';
-    ctx.fillRect(0, 0, width, height);
-
-    if (onTextureChange) {
-      onTextureChange(canvas);
-    }
+  const toggleEraser = () => {
+    setIsErasing(!isErasing);
   }
 
   const changeBrushSize = (size: number) => {
@@ -94,20 +93,24 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
         ref={canvasRef}
         width={width}
         height={height}
-        className='h-[75%] w-[75%] aspect-square rounded-full cursor-crosshair border border-white/25'
+        className='h-[75%] w-[75%] aspect-square cursor-crosshair border border-white/25'
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
         />
-        <button onClick={clearCanvas} className='absolute text-red-500 text-[2svh] font-mono top-[1svh] right-[1svh] rounded'>clear</button>
-        <div className='h-[5svh] mt-[1svh] flex flex-row justify-center items-center gap-[2svh]'>
+        <div className='h-[5svh] mt-[1svh] flex flex-row justify-center items-center gap-[1svh]'>
             <input 
                 type="color" 
                 value={color} 
                 onChange={(e) => setColor(e.target.value)}
                 className='custom-color cursor-pointer'
             />
+            <button 
+                onClick={toggleEraser} 
+                className={`h-[3.5svh] aspect-square ${isErasing ? 'bg-checkerboard-active' : 'bg-checkerboard'}`}
+            >
+            </button>
             <div className='flex flex-col justify-center'>
                     <input 
                         type="range" 
