@@ -12,6 +12,7 @@ export default function BlobWithEditor() {
   const [pathData, setPathData] = useState("");
   const [texture, setTexture] = useState<HTMLCanvasElement | null>(null);
   const [u_wireframeMode, setU_WireframeMode] = useState(0);
+  const [u_opacity, setU_Opacity] = useState(0.0);
 
   //ui states
   const [editModal, setEditModal] = useState<'bezier' | 'texture' | null>('bezier');
@@ -51,6 +52,12 @@ export default function BlobWithEditor() {
     }
   }, [texture]);
 
+  useEffect(() => {
+    if (blobRef.current) {
+      blobRef.current.updateOpacity(u_opacity);
+    }
+  }, [u_opacity]);
+
   const handleTextureChange = (canvas: HTMLCanvasElement) => {
     setTexture(canvas); 
     if (blobRef.current) {
@@ -75,12 +82,20 @@ export default function BlobWithEditor() {
           <Image src="/solid.svg" alt="Solid mode" width={48} height={48} />
         )}
       </button>
+      <input type="range" 
+        min={0} 
+        max={1} 
+        step={0.01} 
+        value={u_opacity} 
+        onChange={(e) => setU_Opacity(parseFloat(e.target.value))}
+        className="absolute top-[15svh] w-[20svh] z-[15] cursor-pointer"
+      />
       <div className='max-w-full max-h-full aspect-square flex justify-center items-center'>
       <canvas
         ref={canvasRef}
         width={600}
         height={600}
-        className='w-full h-full object-contain'
+        className='w-full h-full z-[10] object-contain'
       />
       </div>
 

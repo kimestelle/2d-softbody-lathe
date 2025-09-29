@@ -19,13 +19,13 @@ body {
 }
 
 .bg-grid {
-  background-image: radial-gradient(#9e9e9e79 1px, transparent 1px);
+  background-image: radial-gradient(#9f9f9f79 1px, rgba(66, 66, 66, 0.5) 1.2px, transparent 1.2px);
   background-size: 20% 10%;
   background-position: 13% 19.5%;
 }
 
 .bg-grid-dark {
-  background-image: radial-gradient(rgb(50, 50, 50) 1px, #151515 1px);
+  background-image: radial-gradient(rgb(255, 255, 255) 1px, #f0e6d8 1px);
   background-size: 10px 10px;
   background-position: center;
   background-repeat: repeat;
@@ -36,9 +36,10 @@ body {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(transparent, rgba(0, 0, 0, 0.8)), 
+  background: radial-gradient(transparent, rgba(31, 35, 47, 0.8)), 
     radial-gradient(
       ellipse 50% 8% at 50% calc(50% + min(30svh, 30svw)),
       rgba(255, 255, 255, 0.5) 0%,
@@ -56,7 +57,7 @@ body {
 
 .modal {
   border-radius: 8%;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(41, 92, 180, 0.1)) border-box;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05)) border-box;
   border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(5px);

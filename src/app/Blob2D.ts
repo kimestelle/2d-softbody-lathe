@@ -17,11 +17,11 @@ export default class Blob2D {
   a_pos: number = -1;
   a_depth: number = -1;
   a_nor: number = -1;
-  u_pointSize: WebGLUniformLocation | null = null;
   u_resolution: WebGLUniformLocation | null = null;
   u_lightPos: WebGLUniformLocation | null = null;
   u_viewPos: WebGLUniformLocation | null = null;
   u_wireframeMode: number = 0;
+  u_opacity: number = 0;
 
   constructor(canvas: HTMLCanvasElement, pathData: string) {
     if (!canvas) throw new Error("Canvas element is required");
@@ -63,7 +63,6 @@ export default class Blob2D {
     this.a_pos = gl.getAttribLocation(program, "a_pos");
     this.a_nor = gl.getAttribLocation(program, "a_nor");
     this.u_resolution = gl.getUniformLocation(program, "u_resolution")!;
-    this.u_pointSize = gl.getUniformLocation(program, "u_pointSize")!;
     this.a_depth = gl.getAttribLocation(program, "a_depth");
   }
 
@@ -202,6 +201,10 @@ export default class Blob2D {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
   }
 
+  updateOpacity(value: number) {
+    this.u_opacity = value;
+  }
+
   updateWireframeMode(enabled: boolean) {
     this.u_wireframeMode = enabled ? 1 : 0;
   }
@@ -252,13 +255,65 @@ export default class Blob2D {
     }
   }
 
+  //update particles with physics and wall collisions
+  private UpdateParticlesWithCollisions() {
+    const springK = 0.05;
+    const damping = 0.9;
+    const interactionForce = 200;
+    const radius = 150;
+    const gravity = 1.2;
+    const bounds = { xMin: 0, xMax: this.canvas.width, yMin: 0, yMax: this.canvas.height };
+
+    for (let i = 0; i < this.particles.length; i++) {
+      const p = this.particles[i];
+      const rest = this.restPositions[i];
+
+      const dx = p.x - this.mouseX;
+      const dy = p.y - this.mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < radius) {
+        const force = (1 - dist / radius) * interactionForce;
+        const dirX = dx / (dist || 1);
+        const dirY = dy / (dist || 1);
+        if (this.isDown) {
+          p.vx += dirX * force * 0.01;
+          p.vy += dirY * force * 0.01;
+        }
+      }
+
+      p.vx += (rest.x - p.x) * springK;
+      p.vy += (rest.y - p.y) * springK;
+      p.vx *= damping;
+      p.vy *= damping; // add gravity
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += gravity;
+
+      // wall collisions
+      if (p.x < bounds.xMin) {
+        p.x = bounds.xMin;
+        p.vx *= -0.5;
+      } else if (p.x > bounds.xMax) {
+        p.x = bounds.xMax;
+        p.vx *= -0.5;
+      }
+      if (p.y < bounds.yMin) {
+        p.y = bounds.yMin;
+        p.vy *= -0.5;
+      } else if (p.y > bounds.yMax) {
+        p.y = bounds.yMax;
+        p.vy *= -0.5;
+      }
+    }
+  }
+
   private renderLoop = () => {
     const gl = this.gl;
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    this.updateParticles();
+    this.UpdateParticlesWithCollisions();
 
     gl.useProgram(this.program);
 
@@ -323,6 +378,9 @@ export default class Blob2D {
 
     //wireframe mode: render points and mesh edges
     gl.uniform1i(gl.getUniformLocation(this.program!, "u_wireframeMode"), this.u_wireframeMode);
+
+    //opacity
+    gl.uniform1f(gl.getUniformLocation(this.program!, "u_opacity"), this.u_opacity);
 
     if (this.u_wireframeMode) {
       // draw points

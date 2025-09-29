@@ -33,6 +33,7 @@ precision mediump float;
 uniform vec3 u_lightPos;
 uniform vec3 u_viewPos;
 uniform float u_wireframeMode;
+uniform float u_opacity;
 
 uniform sampler2D u_texture;
 
@@ -64,7 +65,6 @@ void main() {
 
     float alpha = clamp(rimAngle + spec, 0.1, 0.95);
 
-    gl_FragColor = vec4(finalColor, max(alpha, u_wireframeMode));
+    gl_FragColor = vec4(finalColor, max(alpha, u_opacity));
 }
-
 `;
