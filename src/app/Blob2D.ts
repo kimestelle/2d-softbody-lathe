@@ -21,7 +21,7 @@ export default class Blob2D {
   u_lightPos: WebGLUniformLocation | null = null;
   u_viewPos: WebGLUniformLocation | null = null;
   u_wireframeMode: number = 0;
-  u_opacity: number = 0;
+  u_opacity: number = 1.0;
 
   constructor(canvas: HTMLCanvasElement, pathData: string) {
     if (!canvas) throw new Error("Canvas element is required");

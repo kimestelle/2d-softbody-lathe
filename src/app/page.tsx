@@ -12,7 +12,7 @@ export default function BlobWithEditor() {
   const [pathData, setPathData] = useState("");
   const [texture, setTexture] = useState<HTMLCanvasElement | null>(null);
   const [u_wireframeMode, setU_WireframeMode] = useState(0);
-  const [u_opacity, setU_Opacity] = useState(0.0);
+  const [u_opacity, setU_Opacity] = useState(1.0);
 
   //ui states
   const [editModal, setEditModal] = useState<'bezier' | 'texture' | null>('bezier');
@@ -95,7 +95,7 @@ export default function BlobWithEditor() {
         ref={canvasRef}
         width={600}
         height={600}
-        className='w-full h-full z-[10] object-contain'
+        className='w-full h-full z-[10] object-contain cursor-grab'
       />
       </div>
 

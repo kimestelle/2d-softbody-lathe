@@ -34,9 +34,13 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = 'transparent';
+    ctx.fillStyle = "red";
     ctx.fillRect(0, 0, width, height);
-  }, [width, height]);
+
+    if (onTextureChange) {
+      onTextureChange(canvas);
+    }
+  }, [width, height, onTextureChange]);
 
   const startDrawing = (e: React.MouseEvent) => {
     setIsDrawing(true);
