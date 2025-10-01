@@ -43,11 +43,6 @@ varying vec3 v_nor;
 varying vec3 v_pos;
 
 void main() {
-  if (u_isAttachment == 1) {
-    vec3 albedo = texture2D(u_texture, v_uv).rgb;
-    gl_FragColor = vec4(albedo, 1.0);
-    return;
-  } else {
     // vectors
     vec3 N = normalize(v_nor);
     vec3 L = normalize(u_lightPos - v_pos);
@@ -55,6 +50,13 @@ void main() {
     vec3 diagLight = -normalize(vec3(1.2, 1.0, 1.0));
     vec3 R = reflect(-diagLight, N);
 
+  if (u_isAttachment == 1) {
+    vec3 albedo = texture2D(u_texture, v_uv).rgb;
+    vec3 shade = vec3(0.6) + vec3(0.7) * max(dot(N, diagLight), 0.0);
+    albedo *= shade;
+    gl_FragColor = vec4(albedo, 1.0);
+    return;
+  } else {
     // albedo
     vec3 albedo = texture2D(u_texture, v_uv).rgb;
 
@@ -65,7 +67,7 @@ void main() {
     float rimAngle = (1.0 - dot(N, V));
     rimAngle = pow(clamp(rimAngle, 0.3, 1.0), 3.0);
 
-    vec3 rimColor = (vec3(0.6, 0.6, 0.6) + N) * rimAngle;
+    vec3 rimColor = (vec3(0.6, 0.6, 0.6) + N * 0.5) * rimAngle;
 
     vec3 finalColor = albedo + specular + rimColor + vec3(u_wireframeMode);
 
