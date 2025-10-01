@@ -1,6 +1,6 @@
 import { Particle } from "./types";
 import { vertexShaderSrc, fragmentShaderSrc } from "./shaders";
-import { Attachment, makeEye } from "./Features";
+import { Attachment, makeEye, makeNose, makeMouth } from "./Features";
 
 export default class Blob2D {
   canvas: HTMLCanvasElement;
@@ -24,7 +24,7 @@ export default class Blob2D {
   u_lightPos: WebGLUniformLocation | null = null;
   u_viewPos: WebGLUniformLocation | null = null;
   u_wireframeMode: number = 0;
-  u_opacity: number = 1.0;
+  u_opacity: number = 0.0;
   u_offset: WebGLUniformLocation | null = null;
   u_isAttachment: number = -1;
 
@@ -38,8 +38,11 @@ export default class Blob2D {
     this.initShaders();
     this.initParticles(pathData);
     console.log("initial particles:", this.particles.length);
-    this.attachments.push(makeEye(this.gl, 1932, [15, -10, 0]));
     this.attachments.push(makeEye(this.gl, 1925, [-15, -10, 0]));
+    this.attachments.push(makeEye(this.gl, 1932, [15, -10, 0]));
+    this.attachments.push(makeNose(this.gl, 2035, [0, 0, -5]));
+    this.attachments.push(makeMouth(this.gl, 2051, [0, 20, -10]));
+
     this.initMouse();
     this.renderLoop();
   }
