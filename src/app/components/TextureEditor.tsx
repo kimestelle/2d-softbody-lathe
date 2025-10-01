@@ -36,7 +36,10 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
     const ctx = canvas.getContext("2d")!;
     ctx.fillStyle = "red";
     ctx.fillRect(0, 0, width, height);
+  }, [width, height]);
 
+  useEffect(() => {
+    const canvas = canvasRef.current!;
     if (onTextureChange) {
       onTextureChange(canvas);
     }
@@ -68,8 +71,14 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
       ctx.fillStyle = color;
     }
 
-    ctx.shadowBlur = blur;
-    ctx.shadowColor = color;
+    if (isErasing) {
+        ctx.shadowBlur = 0;
+    } else {
+        ctx.shadowBlur = blur;
+        ctx.shadowColor = color;
+        
+    }
+
     ctx.beginPath();
     ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
     ctx.fill();
@@ -119,7 +128,7 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
                     <input 
                         type="range" 
                         min={4} 
-                        max={64} 
+                        max={100} 
                         value={brushSize} 
                         onChange={(e) => changeBrushSize(parseInt(e.target.value))}
                         className='custom-range size-range cursor-pointer my-[1svh]'
