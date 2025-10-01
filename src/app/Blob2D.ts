@@ -1,5 +1,6 @@
 import { Particle } from "./types";
 import { vertexShaderSrc, fragmentShaderSrc } from "./shaders";
+import { Attachment, makeEye } from "./Features";
 
 export default class Blob2D {
   canvas: HTMLCanvasElement;
@@ -10,6 +11,8 @@ export default class Blob2D {
   mouseX = 0;
   mouseY = 0;
   isDown = false;
+
+  attachments: Attachment[] = [];
 
   texture: WebGLTexture | null = null;
 
@@ -22,6 +25,8 @@ export default class Blob2D {
   u_viewPos: WebGLUniformLocation | null = null;
   u_wireframeMode: number = 0;
   u_opacity: number = 1.0;
+  u_offset: WebGLUniformLocation | null = null;
+  u_isAttachment: number = -1;
 
   constructor(canvas: HTMLCanvasElement, pathData: string) {
     if (!canvas) throw new Error("Canvas element is required");
@@ -32,6 +37,9 @@ export default class Blob2D {
 
     this.initShaders();
     this.initParticles(pathData);
+    console.log("initial particles:", this.particles.length);
+    this.attachments.push(makeEye(this.gl, 1932, [15, -10, 0]));
+    this.attachments.push(makeEye(this.gl, 1925, [-15, -10, 0]));
     this.initMouse();
     this.renderLoop();
   }
@@ -223,38 +231,6 @@ export default class Blob2D {
     this.canvas.addEventListener("mouseup", () => (this.isDown = false));
   }
 
-  private updateParticles() {
-    const springK = 0.05;
-    const damping = 0.9;
-    const interactionForce = 200;
-    const radius = 80;
-
-    for (let i = 0; i < this.particles.length; i++) {
-      const p = this.particles[i];
-      const rest = this.restPositions[i];
-
-      const dx = p.x - this.mouseX;
-      const dy = p.y - this.mouseY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < radius) {
-        const force = (1 - dist / radius) * interactionForce;
-        const dirX = dx / (dist || 1);
-        const dirY = dy / (dist || 1);
-        if (this.isDown) {
-          p.vx += dirX * force * 0.01;
-          p.vy += dirY * force * 0.01;
-        }
-      }
-
-      p.vx += (rest.x - p.x) * springK;
-      p.vy += (rest.y - p.y) * springK;
-      p.vx *= damping;
-      p.vy *= damping;
-      p.x += p.vx;
-      p.y += p.vy;
-    }
-  }
-
   //update particles with physics and wall collisions
   private UpdateParticlesWithCollisions() {
     const springK = 0.05;
@@ -382,6 +358,10 @@ export default class Blob2D {
     //opacity
     gl.uniform1f(gl.getUniformLocation(this.program!, "u_opacity"), this.u_opacity);
 
+          // attachment
+    gl.uniform1i(gl.getUniformLocation(this.program!, "u_isAttachment"), 0);
+
+
     if (this.u_wireframeMode) {
       // draw points
       gl.drawArrays(gl.POINTS, 0, this.particles.length);
@@ -392,6 +372,103 @@ export default class Blob2D {
       gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
     }
 
+    // render anchored attachments
+    for (const attachment of this.attachments) {
+      const attParticles = attachment.vertices.length / 2; // XY only
+      const a_uv = gl.getAttribLocation(this.program!, "a_uv");
+      const a_depth = gl.getAttribLocation(this.program!, "a_depth");
+
+      // world space pos
+      const worldVertices = new Float32Array(attachment.vertices.length);
+      const worldDepths = new Float32Array(attachment.depths.length);
+
+      const anchor = this.particles[attachment.anchorIndex];
+
+      for (let i = 0; i < attParticles; i++) {
+        // xy
+        worldVertices[i * 2 + 0] = attachment.vertices[i * 2 + 0] + anchor.x + attachment.offset[0];
+        worldVertices[i * 2 + 1] = attachment.vertices[i * 2 + 1] + anchor.y + attachment.offset[1];
+        // z
+        worldDepths[i] = attachment.depths[i] + anchor.z + attachment.offset[2];
+      }
+
+      // pos bugger
+      const attBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, attBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, worldVertices, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(this.a_pos);
+      gl.vertexAttribPointer(this.a_pos, 2, gl.FLOAT, false, 0, 0);
+
+      // depth buffer
+      const attDepthBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, attDepthBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, worldDepths, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(a_depth);
+      gl.vertexAttribPointer(a_depth, 1, gl.FLOAT, false, 0, 0);
+
+      // uv buffer
+      const attUvBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, attUvBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, attachment.uvs, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(a_uv);
+      gl.vertexAttribPointer(a_uv, 2, gl.FLOAT, false, 0, 0);
+
+      // normal buffer
+      const attNorBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, attNorBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, attachment.normals, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(this.a_nor);
+      gl.vertexAttribPointer(this.a_nor, 3, gl.FLOAT, false, 0, 0);
+
+      // index buffer
+      const attIndexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, attIndexBuffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, attachment.indices, gl.STATIC_DRAW);
+
+      // tecture
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, attachment.texture);
+      gl.uniform1i(gl.getUniformLocation(this.program!, "u_texture"), 0);
+
+      // attachment
+      gl.uniform1i(gl.getUniformLocation(this.program!, "u_isAttachment"), 1);
+
+      gl.drawElements(gl.TRIANGLES, attachment.indices.length, gl.UNSIGNED_SHORT, 0);
+    }
+
     requestAnimationFrame(this.renderLoop);
   };
 }
+
+
+  // private updateParticles() {
+  //   const springK = 0.05;
+  //   const damping = 0.9;
+  //   const interactionForce = 200;
+  //   const radius = 80;
+
+  //   for (let i = 0; i < this.particles.length; i++) {
+  //     const p = this.particles[i];
+  //     const rest = this.restPositions[i];
+
+  //     const dx = p.x - this.mouseX;
+  //     const dy = p.y - this.mouseY;
+  //     const dist = Math.sqrt(dx * dx + dy * dy);
+  //     if (dist < radius) {
+  //       const force = (1 - dist / radius) * interactionForce;
+  //       const dirX = dx / (dist || 1);
+  //       const dirY = dy / (dist || 1);
+  //       if (this.isDown) {
+  //         p.vx += dirX * force * 0.01;
+  //         p.vy += dirY * force * 0.01;
+  //       }
+  //     }
+
+  //     p.vx += (rest.x - p.x) * springK;
+  //     p.vy += (rest.y - p.y) * springK;
+  //     p.vx *= damping;
+  //     p.vy *= damping;
+  //     p.x += p.vx;
+  //     p.y += p.vy;
+  //   }
+  // }

@@ -34,6 +34,7 @@ uniform vec3 u_lightPos;
 uniform vec3 u_viewPos;
 uniform float u_wireframeMode;
 uniform float u_opacity;
+uniform int u_isAttachment;
 
 uniform sampler2D u_texture;
 
@@ -42,6 +43,11 @@ varying vec3 v_nor;
 varying vec3 v_pos;
 
 void main() {
+  if (u_isAttachment == 1) {
+    vec3 albedo = texture2D(u_texture, v_uv).rgb;
+    gl_FragColor = vec4(albedo, 1.0);
+    return;
+  } else {
     // vectors
     vec3 N = normalize(v_nor);
     vec3 L = normalize(u_lightPos - v_pos);
@@ -66,5 +72,7 @@ void main() {
     float alpha = clamp(rimAngle + spec, 0.1, 0.95);
 
     gl_FragColor = vec4(finalColor, max(alpha, u_opacity));
+    
+}
 }
 `;
