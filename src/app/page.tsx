@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Blob2D from "./blob2D";
+import { Blob2D } from "./blob2D";
 import BezierEditor from "./components/BezierEditor";
 import TextureEditor from "./components/TextureEditor";
 
