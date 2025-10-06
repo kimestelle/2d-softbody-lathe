@@ -20,6 +20,17 @@ function rotateY(point: [number, number, number], angle: number): [number, numbe
   ];
 }
 
+function rotateX(point: [number, number, number], angle: number): [number, number, number] {
+  const cosA = Math.cos(angle);
+  const sinA = Math.sin(angle);
+  const [x, y, z] = point;
+  return [
+    x,
+    y * cosA - z * sinA,
+    y * sinA + z * cosA
+  ];
+}
+
 function makeHemisphere(radius: number, latSegments: number, lonSegments: number, offsetZ = 0) {
   const vertices: number[] = [];
   const depths: number[] = [];

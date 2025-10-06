@@ -43,6 +43,22 @@ export default function BezierEditor({ onPathChange }: BezierEditorProps) {
     which?: "in" | "out";
   } | null>(null);
 
+  const getPos = (
+    e: React.MouseEvent<SVGSVGElement> | React.TouchEvent<SVGSVGElement>,
+    svg: SVGSVGElement
+  ) => {
+    const pt = svg.createSVGPoint();
+    if ("touches" in e && e.touches.length > 0) {
+      pt.x = e.touches[0].clientX;
+      pt.y = e.touches[0].clientY;
+    } else {
+      pt.x = (e as React.MouseEvent).clientX;
+      pt.y = (e as React.MouseEvent).clientY;
+    }
+    return pt.matrixTransform(svg.getScreenCTM()?.inverse());
+  };
+
+
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
     // up to 2 inner control points
     if (points.length >= 4) return;
@@ -80,15 +96,10 @@ export default function BezierEditor({ onPathChange }: BezierEditorProps) {
       setDragging({ type, i, which });
     };
 
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+  const handleMove = (e:  React.MouseEvent<SVGSVGElement> | React.TouchEvent<SVGSVGElement>) => {
     if (!dragging) return;
     const svg = e.currentTarget as SVGSVGElement;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const cursorPt = pt.matrixTransform(svg.getScreenCTM()?.inverse());
-    const x = cursorPt.x;
-    const y = cursorPt.y;
+    const { x, y } = getPos(e, svg);
 
     if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) return;
 
@@ -142,8 +153,6 @@ export default function BezierEditor({ onPathChange }: BezierEditorProps) {
     );
   };
 
-  const handleMouseUp = () => setDragging(null);
-
   const buildPath = () => {
     let d = `M ${points[0].x},${points[0].y}`;
     for (let i = 1; i < points.length; i++) {
@@ -169,8 +178,15 @@ export default function BezierEditor({ onPathChange }: BezierEditorProps) {
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         onClick={handleClick}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onMouseMove={handleMove}
+        onMouseUp={() => setDragging(null)}
+        onMouseLeave={() => setDragging(null)}
+        onTouchStart={(e) => {e.stopPropagation()}}
+        onTouchMove={(e) => {
+          e.preventDefault();
+          handleMove(e);
+        }}
+        onTouchEnd={() => setDragging(null)}
         className="cursor-crosshair w-full h-full overflow-visible bg-grid"
       >
         {/* center vertical line */}
@@ -223,6 +239,10 @@ export default function BezierEditor({ onPathChange }: BezierEditorProps) {
             r={10}
             fill={i === 0 || i === points.length - 1 ? "blue" : "red"}
             onMouseDown={startDrag("point", i)}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              setDragging({ type: "point", i });
+            }}
           />
         ))}
 
@@ -237,6 +257,10 @@ export default function BezierEditor({ onPathChange }: BezierEditorProps) {
                 r={10}
                 fill="orange"
                 onMouseDown={startDrag("handle", i, "in")}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  setDragging({ type: "handle", i, which: "in" });
+                }}
               />
             )}
             {p.handleOut && (
@@ -247,6 +271,10 @@ export default function BezierEditor({ onPathChange }: BezierEditorProps) {
                 r={10}
                 fill="orange"
                 onMouseDown={startDrag("handle", i, "out")}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  setDragging({ type: "handle", i, which: "out" });
+                }}
               />
             )}
           </React.Fragment>

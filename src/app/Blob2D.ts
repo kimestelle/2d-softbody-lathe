@@ -1,6 +1,6 @@
 import { Particle } from "./types";
 import { vertexShaderSrc, fragmentShaderSrc } from "./shaders";
-import { Attachment, makeEye, makeNose, makeMouth } from "./Features";
+import { Attachment, makeEye, makeNose, makeMouth } from "./features";
 
 export default class Blob2D {
   canvas: HTMLCanvasElement;
@@ -44,6 +44,7 @@ export default class Blob2D {
     this.attachments.push(makeMouth(this.gl, 2051, [0, 20, -10]));
 
     this.initMouse();
+    this.initTouch();
     this.renderLoop();
   }
 
@@ -232,6 +233,28 @@ export default class Blob2D {
 
     this.canvas.addEventListener("mousedown", () => (this.isDown = true));
     this.canvas.addEventListener("mouseup", () => (this.isDown = false));
+  }
+
+  private initTouch() {
+    this.canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      const touch = e.touches[0];
+      this.mouseX = (touch.clientX - rect.left) * scaleX;
+      this.mouseY = (touch.clientY - rect.top) * scaleY;
+    }, { passive: false });
+
+    this.canvas.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      this.isDown = true;
+    }, { passive: false });
+
+    this.canvas.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      this.isDown = false;
+    }, { passive: false });
   }
 
   //update particles with physics and wall collisions

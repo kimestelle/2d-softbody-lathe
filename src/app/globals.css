@@ -41,7 +41,7 @@ body {
 }
 
 .bg-grid-dark {
-  background-image: radial-gradient(rgb(150, 139, 112) 1px, #757575 1px);
+  background-image: radial-gradient(rgb(85, 77, 55) 1px, #404040 1px);
   background-size: 10px 10px;
   background-position: center;
   background-repeat: repeat;

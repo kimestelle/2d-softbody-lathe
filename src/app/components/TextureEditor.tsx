@@ -20,14 +20,28 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
   const [blur, setBlur] = useState(0);
   const [isErasing, setIsErasing] = useState(false);
 
-  const getMousePos = (e: MouseEvent | React.MouseEvent) => {
+  const getMousePos = (e: MouseEvent | React.MouseEvent | TouchEvent | React.TouchEvent) => {
     const canvas = canvasRef.current!;
-    const rect = canvasRef.current!.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
+
+    let clientX: number, clientY: number;
+
+    if ("touches" in e && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if ("clientX" in e && "clientY" in e) {
+      clientX = (e as MouseEvent | React.MouseEvent).clientX;
+      clientY = (e as MouseEvent | React.MouseEvent).clientY;
+    } else {
+      clientX = 0;
+      clientY = 0;
+    }
+
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY,
     };
   };
 
@@ -45,7 +59,7 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
     }
   }, [width, height, onTextureChange]);
 
-  const startDrawing = (e: React.MouseEvent) => {
+  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDrawing(true);
     draw(e);
   };
@@ -57,7 +71,7 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
     }
   };
 
-  const draw = (e: React.MouseEvent | MouseEvent) => {
+  const draw = (e: React.MouseEvent | MouseEvent | TouchEvent | React.TouchEvent) => {
     if (!isDrawing) return;
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
@@ -111,6 +125,9 @@ const TextureEditor: React.FC<TextureEditorProps> = ({
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
+        onTouchStart={(e) => { setIsDrawing(true); draw(e); }}
+        onTouchMove={(e) => { e.preventDefault(); draw(e); }}
+        onTouchEnd={stopDrawing}
         />
         <div className='h-[5svh] mt-[1svh] flex flex-row justify-center items-center gap-[1svh]'>
             <input 
