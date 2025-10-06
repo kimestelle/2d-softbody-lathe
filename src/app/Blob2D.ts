@@ -1,6 +1,6 @@
 import { Particle } from "./types";
 import { vertexShaderSrc, fragmentShaderSrc } from "./shaders";
-import { Attachment, makeEye, makeNose, makeMouth } from "./features";
+import { Attachment, makeEye, makeNose, makeMouth } from "./Features";
 
 export class Blob2D {
   canvas: HTMLCanvasElement;
